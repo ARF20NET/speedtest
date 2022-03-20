@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="/style.css">
+        <title>ARFNET</title>
+		<style>
+			.title {
+				font-size: 36px;
+			}
+			
+			header *{
+				display: inline-block;
+			}
+			
+			*{
+				vertical-align: middle;
+				max-width: 100%;
+			}
+			
+			.row {
+				display: flex;
+			}
+			
+			.col {
+				flex: 50%;
+				padding: 40px;
+			}
+			
+			.text {
+				margin-left: 20px;
+			}
+		</style>
+    </head>
+
+    <body>
+        <header>
+			<img src="/arfnet_logo.png" width="64">
+			<span class="title"><strong>ARFNET</strong></span>
+		</header>
+		<hr>
+		<a class="home" href="/">Home</a><br>
+		<h1>ARFNET Speedtest to ARFNET</h1>
+		<center>
+			<h2>Download Speed</h2>
+			<span class="text" id="dlsp"></span><br>
+			<button onclick="startdl()">Start</button>
+			<button onclick="stopdl()">Stop</button>
+			<br><br>
+		</center>
+    </body>
+	<script>
+			var uploaded = 0;
+			var newuploaded = 0;
+		
+			var speed = document.getElementById("dlsp");
+			
+			var xhttp = new XMLHttpRequest();
+		
+			function formatBytes(size, precision){
+				if (size == 0) return "0";
+				
+				var base = Math.log(size) / Math.log(1024);
+				var suffixes = ['', 'K', 'M', 'G', 'T'];
+
+				//return (Math.round(Math.pow(1024, base - Math.floor(base)), precision)).toString() + " " + suffixes[Math.floor(base)].toString();
+				return (Math.round(Math.pow(1024, base - Math.floor(base)), precision)).toString() + " " + suffixes[Math.floor(base)].toString();
+			}
+		
+			function updateSpeed() {
+				var diffuploaded = newuploaded - uploaded;
+				uploaded = newuploaded;
+				speed.innerHTML = formatBytes(diffuploaded * 8, 4) + "bps (" + formatBytes(diffuploaded, 4) + "B/s)";
+				console.log(formatBytes(diffuploaded) + "B/s");
+				setTimeout(updateSpeed, 1000);
+			}
+		
+			function startdl() {
+				if (xhttp.readyState = 2) stopdl();
+			
+				xhttp.onprogress = function(evt) {
+					newuploaded = evt.loaded;
+				}
+				
+				xhttp.onloadend = function(evt) {
+					speed.InnerHTML = "Done";
+				}
+				
+				xhttp.open("GET", "/FTPServer/software/amd64-win/Microsoft%20Flight%20Simulator%202020.iso");
+				xhttp.send();
+				updateSpeed();
+			}
+			
+			function stopdl() {
+				xhttp.abort();
+				speed.innerHTML = "Stopped";
+			}
+		</script>
+</html>
